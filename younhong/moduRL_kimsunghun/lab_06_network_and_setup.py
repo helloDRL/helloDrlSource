@@ -3,11 +3,11 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-env = gym.make('FrozenLake-v8')
+env = gym.make('FrozenLake-v0')
 
 input_size = env.observation_space.n
 output_size = env.action_space.n
-learnng_rate = 0.1
+learning_rate = 0.1
 
 X = tf.placeholder(shape=[1,input_size],dtype=tf.float32)
 W = tf.Variable(tf.random_uniform([input_size, output_size],0,0.01))
