@@ -15,6 +15,8 @@ pip install matplotlib
 
 https://www.anaconda.com/download/
 
+아나콘다 가상환경구성 https://conda.io/docs/user-guide/tasks/manage-environments.html
+
 http://blog.naver.com/PostView.nhn?blogId=nbic2014&logNo=220948501051&parentCategoryNo=&categoryNo=&viewDate=&isShowPopularPosts=false&from=postView
 
 https://graspthegist.com/posts/learn-conda-1/
