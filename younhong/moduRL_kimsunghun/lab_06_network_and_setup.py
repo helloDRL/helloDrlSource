@@ -44,13 +44,13 @@ with tf.Session() as sess:
             else:
                 a = np.argmax(Qs)
 
-        s1, reward, done,_ = env.step(a)
-        if done:
-            Qs[0, a] = reward
-        else:
-            Qs1 = sess.run(Qpred, feed_dict={X: one_hot(s1)})
+            s1, reward, done,_ = env.step(a)
+            if done:
+                Qs[0, a] = reward
+            else:
+                Qs1 = sess.run(Qpred, feed_dict={X: one_hot(s1)})
 
-            Qs[0, a] = reward + dis * np.max(Qs1)
+                Qs[0, a] = reward + dis * np.max(Qs1)
 
             sess.run(train, feed_dict={X: one_hot(s), Y: Qs})
 
