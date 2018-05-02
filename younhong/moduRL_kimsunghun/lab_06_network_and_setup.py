@@ -3,6 +3,9 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+def one_hot(x):  #추가
+    return np.identity(16)[x:x + 1]
+
 env = gym.make('FrozenLake-v0')
 
 input_size = env.observation_space.n
@@ -25,6 +28,7 @@ num_episodes = 2000
 rList = []
 
 with tf.Session() as sess:
+    init = tf.global_variables_initializer() # 추가
     sess.run(init)
     for i in range(num_episodes):
         s = env.reset()
