@@ -52,11 +52,11 @@ with tf.Session() as sess:
 
             Qs[0, a] = reward + dis * np.max(Qs1)
 
-        sess.run(train, feed_dict={X: one_hot(s), Y: Qs})
+            sess.run(train, feed_dict={X: one_hot(s), Y: Qs})
 
-        rAll += reward
-        s = s1
-    rList.append(rAll)
+            rAll += reward
+            s = s1
+        rList.append(rAll)
 
 print("Percent of successful episodes: " + str(sum(rList)/num_episodes) + "%")
 plt.bar(range(len(rList)), rList, color="blue")
