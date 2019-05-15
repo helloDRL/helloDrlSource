@@ -19,7 +19,7 @@ model.add(Dense(30, activation='relu', kernel_initializer='he_uniform'))
 model.add(Dense(action_size, activation='linear', kernel_initializer='he_uniform'))
 model.compile(loss='mse', optimizer=Adam(lr=0.001))
 
-epsilon = 0.01
+epsilon = 0.1
 discount_factor = 0.99
 
 def get_action(state):
