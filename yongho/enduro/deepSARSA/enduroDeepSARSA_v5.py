@@ -18,7 +18,7 @@ EPISODES = 1000
 # enduro deep sarsa agent
 class DeepSARSAAgent:
     def __init__(self):
-        self.load_model = True
+        self.load_model = False
         # 에이전트가 가능한 모든 행동 정의
         self.action_space = [0, 1, 2, 3, 4, 5, 6, 7, 8]
         # 상태의 크기와 행동의 크기 정의
@@ -34,13 +34,13 @@ class DeepSARSAAgent:
 
         if self.load_model:
             self.epsilon = 0.05
-            self.model.load_weights('./save_model/deep_sarsa_v4.h5')
+            self.model.load_weights('./save_model/deep_sarsa_v5.h5')
 
     # 상태가 입력 큐함수가 출력인 인공신경망 생성
     def build_model(self):
         model = Sequential()
-        model.add(Dense(1152, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(1152, activation='relu'))
+        model.add(Dense(256, input_dim=self.state_size, activation='relu'))
+        model.add(Dense(256, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.summary()
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         state = np.reshape(state, [1, state_size])
 
         while not done:
-            env.render()
+            # env.render()
             # env 초기화
             global_step += 1
 
@@ -102,14 +102,15 @@ if __name__ == "__main__":
             action = agent.get_action(state)
             # 선택한 행동으로 환경에서 한 타임스텝 진행 후 샘플 수집
             next_state, reward, done, info = env.step(action)
-            score += reward
             next_state = np.reshape(next_state, [1, state_size])
             next_action = agent.get_action(next_state)
             # 샘플로 모델 학습
-            agent.train_model(state, action, score, next_state, next_action,
+            score += reward
+            if done:
+                reward = score
+            agent.train_model(state, action, reward, next_state, next_action,
                               done)
             state = next_state
-
 
             state = copy.deepcopy(next_state)
 
@@ -118,10 +119,10 @@ if __name__ == "__main__":
                 scores.append(score)
                 episodes.append(e)
                 pylab.plot(episodes, scores, 'b')
-                pylab.savefig("./save_graph/deep_sarsa_v4.png")
+                pylab.savefig("./save_graph/deep_sarsa_v5.png")
                 print("episode:", e, "  score:", score-200, "global_step",
                       global_step, "  epsilon:", agent.epsilon)
 
         # 100 에피소드마다 모델 저장
         if e % 100 == 0:
-            agent.model.save_weights("./save_model/deep_sarsa_v4.h5")
+            agent.model.save_weights("./save_model/deep_sarsa_v5.h5")
