@@ -57,9 +57,9 @@ class DQNAgent:
     # 상태가 입력, 큐함수가 출력인 인공신경망 생성
     def build_model(self):
         model = Sequential()
-        model.add(Dense(32, input_dim=self.state_size, activation='relu',
+        model.add(Dense(36, input_dim=self.state_size, activation='relu',
                         kernel_initializer='he_uniform'))
-        model.add(Dense(32, activation='relu',
+        model.add(Dense(36, activation='relu',
                         kernel_initializer='he_uniform'))
         model.add(Dense(self.action_size, activation='linear',
                         kernel_initializer='he_uniform'))
@@ -368,6 +368,8 @@ class DQNClient:
         if reward <= -1:
             done = 1
         elif car_state.speed <= 1:
+            done = 1
+        elif reward == 10:
             done = 1
         elif car_state.kinematics_estimated.position.x_val == prev_car_state.kinematics_estimated.position.x_val and car_state.kinematics_estimated.position.y_val == prev_car_state.kinematics_estimated.position.y_val:
             frozen = frozen + 1

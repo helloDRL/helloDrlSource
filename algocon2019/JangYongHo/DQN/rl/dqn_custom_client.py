@@ -19,7 +19,7 @@ training_duration = 0
 # model/weight load option
 # =========================================================== #
 model_load = False
-model_weight_path = "./save_model/.../dqn_weight_00.h5"
+model_weight_path = "./save_model/load/dqn_weight.h5"
 
 
 # ===========================================================
@@ -38,7 +38,7 @@ class DQNCustomClient(DQNClient):
         # TODO: 1. parameter tuning
         dqn_param.discount_factor = 0.99 # default: 0.99
         dqn_param.learning_rate = 0.00025 # default: 0.00025
-        dqn_param.epsilon = 1.0 # default: 1.0
+        dqn_param.epsilon = 1 # default: 1.0
         dqn_param.epsilon_decay = 0.999 # default: 0.999
         dqn_param.epsilon_min = 0.01 # default: 0.01
         dqn_param.batch_size = 100 # default: 100
@@ -99,55 +99,71 @@ class DQNCustomClient(DQNClient):
         thresh_dist = self.half_road_limit  # 4 wheels off the track
         dist = abs(sensing_info.to_middle)
         if dist > thresh_dist:
-            return -1
+            return -10
         elif sensing_info.collided:
-            return -1
+            return -10
         elif sensing_info.moving_forward < 0:
-            return -1
+            return -10
+        elif sensing_info.lap_progress == 100:
+            return 10
 
-        reward = sensing_info.speed / 200
+        reward = (sensing_info.speed - 40) / 100
+
         abscurv1 = abs(sensing_info.track_forward_angles[1] - sensing_info.track_forward_angles[0])
         abscurv1 += abs(sensing_info.track_forward_angles[2] - sensing_info.track_forward_angles[1])
         abscurv1 += abs(sensing_info.track_forward_angles[3] - sensing_info.track_forward_angles[2])
         abscurv1 += abs(sensing_info.track_forward_angles[4] - sensing_info.track_forward_angles[3])
         abscurv1 += abs(sensing_info.track_forward_angles[5] - sensing_info.track_forward_angles[4])/2
-        abscurv1 = abscurv1 / 90
+        # abscurv1 = abscurv1 / 90
         abscurv2 = abscurv1
         abscurv2 += abs(sensing_info.track_forward_angles[5] - sensing_info.track_forward_angles[4])/2
         abscurv2 += abs(sensing_info.track_forward_angles[6] - sensing_info.track_forward_angles[5])
         abscurv2 += abs(sensing_info.track_forward_angles[7] - sensing_info.track_forward_angles[6])
         abscurv2 += abs(sensing_info.track_forward_angles[8] - sensing_info.track_forward_angles[7])
         abscurv2 += abs(sensing_info.track_forward_angles[9] - sensing_info.track_forward_angles[8])
-        abscurv2 = abscurv2 / 90
+        abscurv2 = abscurv2 / 180
+
         curv1 = sum(sensing_info.track_forward_angles[0:5])
         curv2 = sum(sensing_info.track_forward_angles[0:10])
-
         sDist = abs(sensing_info.to_middle) - abscurv2 * thresh_dist
         if sDist < 0:
-            sDist = sDist/ 5
-        print(round(reward,2), end=' : ')
-        rewardD = (thresh_dist / (sDist + thresh_dist) - 0.4)
+            sDist = sDist / 50
+
+        rewardD = (thresh_dist / (sDist + thresh_dist) - 0.5)
         if rewardD < 0:
-            rewardD = rewardD / 5
+            rewardD = rewardD / 50
         else:
             rewardD = rewardD**2
-        print(round(rewardD,2), end = ' : ')
+
 
         sAngle = abs(sensing_info.moving_angle) - abscurv2 * 45
         if sAngle < 0:
-            sAngle = sAngle / 10
-        rewardA = (45 / (sAngle + 45) - 0.4)
+            sAngle = sAngle / 100
+        rewardA = (45 / (sAngle + 45) - 0.5)
         if rewardA < 0:
-            rewardA = rewardA / 10
+            rewardA = rewardA / 100
         else:
             rewardA = rewardA**2
-        print(round(rewardA, 2), end=' = ')
+
+        aAngle = abs(curv2 / 10 - sensing_info.moving_angle) - 15
+        if aAngle < 0:
+            aAngle = aAngle / 100
+        rewardAA = (90 / (aAngle + 90) - 0.5)
+        if rewardAA < 0:
+            rewardAA = rewardAA / 100
+        else:
+            rewardAA = rewardAA**2
+
+        print(round(reward, 2), end=' : ')
+        print(round(rewardD, 2), end=' : ')
+        print(round(rewardA, 2), end=' : ')
+        print(round(rewardAA,2), end=' = ')
         reward = reward + rewardA + rewardD
         print(round(reward,2))
         #
         # Editing area ends
         # ==========================================================#
-        return round(reward,2)
+        return round(reward,4)
 
     def build_custom_model(self):
         #TODO: 4. define proper model
@@ -168,10 +184,10 @@ class DQNCustomClient(DQNClient):
 if __name__ == "__main__":
     client = DQNCustomClient()
 
+    client.override_model()
+
     if model_load:
         client.agent.load_model(model_weight_path)
-
-    client.override_model()
 
     client.run(training_duration)
     sys.exit()
